@@ -1,1 +1,139 @@
-create table if not exists campaigns (\n  id uuid primary key default gen_random_uuid(),\n  name text not null,\n  start_date date not null,\n  end_date date not null,\n  status text default 'active',\n  user_id uuid,\n  created_at timestamptz not null default now()\n);\n\ncreate table if not exists memberships (\n  id uuid primary key default gen_random_uuid(),\n  name text not null,\n  gender text,\n  tier text default 'bronze',\n  lifecycle_status text default 'new',\n  registered_at timestamptz default now(),\n  suggested_tier text,\n  suggested_tier_source text,\n  suggested_tier_confidence numeric,\n  suggested_tier_review_status text default 'unreviewed',\n  user_id uuid,\n  created_at timestamptz not null default now()\n);\n\ncreate table if not exists receipts (\n  id uuid primary key default gen_random_uuid(),\n  member_id uuid not null,\n  amount numeric(10,2) not null,\n  store text,\n  transaction_date date not null,\n  campaign_id uuid,\n  user_id uuid,\n  created_at timestamptz not null default now()\n);\n\ncreate table if not exists gifts (\n  id uuid primary key default gen_random_uuid(),\n  name text not null,\n  description text,\n  stock integer default 0,\n  threshold_amount numeric(10,2) default 0,\n  campaign_id uuid,\n  user_id uuid,\n  created_at timestamptz not null default now()\n);\n\ncreate table if not exists redemptions (\n  id uuid primary key default gen_random_uuid(),\n  member_id uuid not null,\n  gift_id uuid not null,\n  receipt_id uuid not null,\n  status text default 'completed',\n  user_id uuid,\n  created_at timestamptz not null default now()\n);\n\ncreate table if not exists audit_logs (\n  id uuid primary key default gen_random_uuid(),\n  action text not null,\n  entity text,\n  entity_id uuid,\n  details jsonb,\n  user_id uuid,\n  created_at timestamptz not null default now()\n);\n\nalter table campaigns enable row level security;\nalter table memberships enable row level security;\nalter table receipts enable row level security;\nalter table gifts enable row level security;\nalter table redemptions enable row level security;\nalter table audit_logs enable row level security;\n\ndrop policy if exists \"campaigns_v1_read\" on campaigns;\ncreate policy \"campaigns_v1_read\" on campaigns for select using (true);\ndrop policy if exists \"campaigns_v1_write\" on campaigns;\ncreate policy \"campaigns_v1_write\" on campaigns for all using (true) with check (true);\n\ndrop policy if exists \"memberships_v1_read\" on memberships;\ncreate policy \"memberships_v1_read\" on memberships for select using (true);\ndrop policy if exists \"memberships_v1_write\" on memberships;\ncreate policy \"memberships_v1_write\" on memberships for all using (true) with check (true);\n\ndrop policy if exists \"receipts_v1_read\" on receipts;\ncreate policy \"receipts_v1_read\" on receipts for select using (true);\ndrop policy if exists \"receipts_v1_write\" on receipts;\ncreate policy \"receipts_v1_write\" on receipts for all using (true) with check (true);\n\ndrop policy if exists \"gifts_v1_read\" on gifts;\ncreate policy \"gifts_v1_read\" on gifts for select using (true);\ndrop policy if exists \"gifts_v1_write\" on gifts;\ncreate policy \"gifts_v1_write\" on gifts for all using (true) with check (true);\n\ndrop policy if exists \"redemptions_v1_read\" on redemptions;\ncreate policy \"redemptions_v1_read\" on redemptions for select using (true);\ndrop policy if exists \"redemptions_v1_write\" on redemptions;\ncreate policy \"redemptions_v1_write\" on redemptions for all using (true) with check (true);\n\ndrop policy if exists \"audit_logs_v1_read\" on audit_logs;\ncreate policy \"audit_logs_v1_read\" on audit_logs for select using (true);\ndrop policy if exists \"audit_logs_v1_write\" on audit_logs;\ncreate policy \"audit_logs_v1_write\" on audit_logs for all using (true) with check (true);\n\ninsert into campaigns (id, name, start_date, end_date, status) values\n  ('a1000000-0000-0000-0000-000000000001', 'Diwali 2025', '2025-10-20', '2025-11-05', 'active'),\n  ('a1000000-0000-0000-0000-000000000002', 'Christmas 2025', '2025-12-01', '2025-12-31', 'active')\non conflict (id) do nothing;\n\ninsert into memberships (id, name, gender, tier, lifecycle_status) values\n  ('b1000000-0000-0000-0000-000000000001', 'Priya Sharma', 'female', 'gold', 'active'),\n  ('b1000000-0000-0000-0000-000000000002', 'Rahul Verma', 'male', 'silver', 'active'),\n  ('b1000000-0000-0000-0000-000000000003', 'Anita Desai', 'female', 'bronze', 'new'),\n  ('b1000000-0000-0000-0000-000000000004', 'Karthik Iyer', 'male', 'bronze', 'new'),\n  ('b1000000-0000-0000-0000-000000000005', 'Meera Nair', 'female', 'silver', 'churned')\non conflict (id) do nothing;\n\ninsert into receipts (id, member_id, amount, store, transaction_date, campaign_id) values\n  ('c1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 450.00, 'Store A', '2025-10-22', 'a1000000-0000-0000-0000-000000000001'),\n  ('c1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000001', 180.00, 'Store B', '2025-10-25', 'a1000000-0000-0000-0000-000000000001'),\n  ('c1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000002', 220.00, 'Store A', '2025-10-23', 'a1000000-0000-0000-0000-000000000001'),\n  ('c1000000-0000-0000-0000-000000000004', 'b1000000-0000-0000-0000-000000000002', 95.00, 'Store C', '2025-10-27', 'a1000000-0000-0000-0000-000000000001'),\n  ('c1000000-0000-0000-0000-000000000005', 'b1000000-0000-0000-0000-000000000003', 130.00, 'Store B', '2025-10-28', 'a1000000-0000-0000-0000-000000000001'),\n  ('c1000000-0000-0000-0000-000000000006', 'b1000000-0000-0000-0000-000000000004', 75.00, 'Store A', '2025-10-29', 'a1000000-0000-0000-0000-000000000001'),\n  ('c1000000-0000-0000-0000-000000000007', 'b1000000-0000-0000-0000-000000000005', 310.00, 'Store C', '2025-11-01', 'a1000000-0000-0000-0000-000000000001'),\n  ('c1000000-0000-0000-0000-000000000008', 'b1000000-0000-0000-0000-000000000001', 520.00, 'Store D', '2025-12-05', 'a1000000-0000-0000-0000-000000000002')\non conflict (id) do nothing;\n\ninsert into gifts (id, name, description, stock, threshold_amount, campaign_id) values\n  ('d1000000-0000-0000-0000-000000000001', 'Festive Tote Bag', 'Limited edition Diwali tote', 10, 100.00, 'a1000000-0000-0000-0000-000000000001'),\n  ('d1000000-0000-0000-0000-000000000002', 'Scented Candle Set', 'Premium aroma candle duo', 8, 150.00, 'a1000000-0000-0000-0000-000000000001'),\n  ('d1000000-0000-0000-0000-000000000003', 'Decorative Diya Lamp', 'Handcrafted ceramic diya', 5, 200.00, 'a1000000-0000-0000-0000-000000000001'),\n  ('d1000000-0000-0000-0000-000000000004', 'Christmas Gift Hamper', 'Festive hamper with goodies', 15, 300.00, 'a1000000-0000-0000-0000-000000000002')\non conflict (id) do nothing;\n\ninsert into redemptions (id, member_id, gift_id, receipt_id, status) values\n  ('e1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 'completed'),\n  ('e1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000002', 'd1000000-0000-0000-0000-000000000002', 'c1000000-0000-0000-0000-000000000003', 'completed')\non conflict (id) do nothing;\n"}]
+create table if not exists campaigns (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  start_date date not null,
+  end_date date not null,
+  status text default 'active',
+  user_id uuid,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists memberships (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  gender text,
+  tier text default 'bronze',
+  lifecycle_status text default 'new',
+  registered_at timestamptz default now(),
+  suggested_tier text,
+  suggested_tier_source text,
+  suggested_tier_confidence numeric,
+  suggested_tier_review_status text default 'unreviewed',
+  user_id uuid,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists receipts (
+  id uuid primary key default gen_random_uuid(),
+  member_id uuid not null,
+  amount numeric(10,2) not null,
+  store text,
+  transaction_date date not null,
+  campaign_id uuid,
+  user_id uuid,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists gifts (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  description text,
+  stock integer default 0,
+  threshold_amount numeric(10,2) default 0,
+  campaign_id uuid,
+  user_id uuid,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists redemptions (
+  id uuid primary key default gen_random_uuid(),
+  member_id uuid not null,
+  gift_id uuid not null,
+  receipt_id uuid not null,
+  status text default 'completed',
+  user_id uuid,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists audit_logs (
+  id uuid primary key default gen_random_uuid(),
+  action text not null,
+  entity text,
+  entity_id uuid,
+  details jsonb,
+  user_id uuid,
+  created_at timestamptz not null default now()
+);
+
+alter table campaigns enable row level security;
+alter table memberships enable row level security;
+alter table receipts enable row level security;
+alter table gifts enable row level security;
+alter table redemptions enable row level security;
+alter table audit_logs enable row level security;
+
+drop policy if exists "campaigns_v1_read" on campaigns;
+create policy "campaigns_v1_read" on campaigns for select using (true);
+drop policy if exists "campaigns_v1_write" on campaigns;
+create policy "campaigns_v1_write" on campaigns for all using (true) with check (true);
+
+drop policy if exists "memberships_v1_read" on memberships;
+create policy "memberships_v1_read" on memberships for select using (true);
+drop policy if exists "memberships_v1_write" on memberships;
+create policy "memberships_v1_write" on memberships for all using (true) with check (true);
+
+drop policy if exists "receipts_v1_read" on receipts;
+create policy "receipts_v1_read" on receipts for select using (true);
+drop policy if exists "receipts_v1_write" on receipts;
+create policy "receipts_v1_write" on receipts for all using (true) with check (true);
+
+drop policy if exists "gifts_v1_read" on gifts;
+create policy "gifts_v1_read" on gifts for select using (true);
+drop policy if exists "gifts_v1_write" on gifts;
+create policy "gifts_v1_write" on gifts for all using (true) with check (true);
+
+drop policy if exists "redemptions_v1_read" on redemptions;
+create policy "redemptions_v1_read" on redemptions for select using (true);
+drop policy if exists "redemptions_v1_write" on redemptions;
+create policy "redemptions_v1_write" on redemptions for all using (true) with check (true);
+
+drop policy if exists "audit_logs_v1_read" on audit_logs;
+create policy "audit_logs_v1_read" on audit_logs for select using (true);
+drop policy if exists "audit_logs_v1_write" on audit_logs;
+create policy "audit_logs_v1_write" on audit_logs for all using (true) with check (true);
+
+insert into campaigns (id, name, start_date, end_date, status) values
+  ('a1000000-0000-0000-0000-000000000001', 'Diwali 2025', '2025-10-20', '2025-11-05', 'active'),
+  ('a1000000-0000-0000-0000-000000000002', 'Christmas 2025', '2025-12-01', '2025-12-31', 'active')
+on conflict (id) do nothing;
+
+insert into memberships (id, name, gender, tier, lifecycle_status) values
+  ('b1000000-0000-0000-0000-000000000001', 'Priya Sharma', 'female', 'gold', 'active'),
+  ('b1000000-0000-0000-0000-000000000002', 'Rahul Verma', 'male', 'silver', 'active'),
+  ('b1000000-0000-0000-0000-000000000003', 'Anita Desai', 'female', 'bronze', 'new'),
+  ('b1000000-0000-0000-0000-000000000004', 'Karthik Iyer', 'male', 'bronze', 'new'),
+  ('b1000000-0000-0000-0000-000000000005', 'Meera Nair', 'female', 'silver', 'churned')
+on conflict (id) do nothing;
+
+insert into receipts (id, member_id, amount, store, transaction_date, campaign_id) values
+  ('c1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 450.00, 'Store A', '2025-10-22', 'a1000000-0000-0000-0000-000000000001'),
+  ('c1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000001', 180.00, 'Store B', '2025-10-25', 'a1000000-0000-0000-0000-000000000001'),
+  ('c1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000002', 220.00, 'Store A', '2025-10-23', 'a1000000-0000-0000-0000-000000000001'),
+  ('c1000000-0000-0000-0000-000000000004', 'b1000000-0000-0000-0000-000000000002', 95.00, 'Store C', '2025-10-27', 'a1000000-0000-0000-0000-000000000001'),
+  ('c1000000-0000-0000-0000-000000000005', 'b1000000-0000-0000-0000-000000000003', 130.00, 'Store B', '2025-10-28', 'a1000000-0000-0000-0000-000000000001'),
+  ('c1000000-0000-0000-0000-000000000006', 'b1000000-0000-0000-0000-000000000004', 75.00, 'Store A', '2025-10-29', 'a1000000-0000-0000-0000-000000000001'),
+  ('c1000000-0000-0000-0000-000000000007', 'b1000000-0000-0000-0000-000000000005', 310.00, 'Store C', '2025-11-01', 'a1000000-0000-0000-0000-000000000001'),
+  ('c1000000-0000-0000-0000-000000000008', 'b1000000-0000-0000-0000-000000000001', 520.00, 'Store D', '2025-12-05', 'a1000000-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
+
+insert into gifts (id, name, description, stock, threshold_amount, campaign_id) values
+  ('d1000000-0000-0000-0000-000000000001', 'Festive Tote Bag', 'Limited edition Diwali tote', 10, 100.00, 'a1000000-0000-0000-0000-000000000001'),
+  ('d1000000-0000-0000-0000-000000000002', 'Scented Candle Set', 'Premium aroma candle duo', 8, 150.00, 'a1000000-0000-0000-0000-000000000001'),
+  ('d1000000-0000-0000-0000-000000000003', 'Decorative Diya Lamp', 'Handcrafted ceramic diya', 5, 200.00, 'a1000000-0000-0000-0000-000000000001'),
+  ('d1000000-0000-0000-0000-000000000004', 'Christmas Gift Hamper', 'Festive hamper with goodies', 15, 300.00, 'a1000000-0000-0000-0000-000000000002')
+on conflict (id) do nothing;
+
+insert into redemptions (id, member_id, gift_id, receipt_id, status) values
+  ('e1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 'completed'),
+  ('e1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000002', 'd1000000-0000-0000-0000-000000000002', 'c1000000-0000-0000-0000-000000000003', 'completed')
+on conflict (id) do nothing;
