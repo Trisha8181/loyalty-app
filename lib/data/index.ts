@@ -17,6 +17,7 @@ export async function loadData(): Promise<Dataset> {
 export async function saveRecord(table: Kind, values: Record<string,unknown>, id?:string){
  const db=await createClient();
  const {data:{user}}=await db.auth.getUser();
+ if(!user)throw Error("Sign in to save records.");
  const query=id?db.from(table).update(values).eq("id",id):db.from(table).insert({...values,user_id:user?.id??null});
  const {data,error}=await query.select("id").single();
  if(error) throw new Error(error.message);

@@ -1,45 +1,13 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
-
-export async function updateSession(request: NextRequest) {
-  const supabaseResponse = NextResponse.next({ request });
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  // If Supabase isn't configured, skip the auth refresh and pass through.
-  // Without this guard createServerClient throws "Your project's URL and Key
-  // are required", crashing the edge middleware on every route (500
-  // MIDDLEWARE_INVOCATION_FAILED).
-  if (!url || !anonKey) {
-    return supabaseResponse;
-  }
-
-  try {
-    let response = supabaseResponse;
-    const supabase = createServerClient(url, anonKey, {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet: {name: string; value: string; options: CookieOptions}[]) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
-    });
-
-    // Refresh session so it doesn't expire while user is active
-    await supabase.auth.getUser();
-    return response;
-  } catch {
-    // Never let an auth hiccup crash the entire edge middleware
-    return supabaseResponse;
-  }
+import {createServerClient,type CookieOptions} from "@supabase/ssr";
+import {NextResponse,type NextRequest} from "next/server";
+export async function updateSession(request:NextRequest){
+ let response=NextResponse.next({request});
+ const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+ const publicPath=request.nextUrl.pathname==="/login"||request.nextUrl.pathname.startsWith("/auth/")||request.nextUrl.pathname==="/api/health";
+ if(!url||!key)return publicPath?response:NextResponse.redirect(new URL("/login",request.url));
+ const db=createServerClient(url,key,{cookies:{getAll:()=>request.cookies.getAll(),setAll:(cookies:{name:string;value:string;options:CookieOptions}[])=>{cookies.forEach(({name,value})=>request.cookies.set(name,value));response=NextResponse.next({request});cookies.forEach(({name,value,options})=>response.cookies.set(name,value,options));}}});
+ const {data:{user}}=await db.auth.getUser();
+ if(!user&&!publicPath){const redirect=NextResponse.redirect(new URL("/login",request.url));response.cookies.getAll().forEach(c=>redirect.cookies.set(c));return redirect;}
+ if(user&&request.nextUrl.pathname==="/login"){const redirect=NextResponse.redirect(new URL("/",request.url));response.cookies.getAll().forEach(c=>redirect.cookies.set(c));return redirect;}
+ return response;
 }
-

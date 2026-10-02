@@ -11,7 +11,7 @@ export async function mutate(_:Result, form:FormData):Promise<Result>{
   const get=(key:string)=>String(form.get(key)??"").trim();
   const required=(key:string)=>{const v=get(key);if(!v)throw Error(`${key.replaceAll('_',' ')} is required.`);return v;};
   const choice=(key:string,allowed:string[])=>{const v=required(key);if(!allowed.includes(v))throw Error(`Invalid ${key}.`);return v;};
-  const amount=(key:string,positive=false)=>{const raw=required(key).replace(/^\$\s*/,"").replaceAll(",","");if(!/^\d+(\.\d{1,2})?$/.test(raw))throw Error("Enter a valid amount with up to 2 decimal places.");const n=Number(raw);if(!Number.isFinite(n)||n>99999999.99||(positive?n<=0:n<0))throw Error("Amount is out of range.");return n;};
+  const amount=(key:string,positive=false)=>{const raw=required(key).replace(/^\$\s*/,"");if(!/^(?:\d+|\d{1,3}(?:,\d{3})+)(\.\d{1,2})?$/.test(raw))throw Error("Enter a valid amount with up to 2 decimal places.");const n=Number(raw.replaceAll(",",""));if(!Number.isFinite(n)||n>99999999.99||(positive?n<=0:n<0))throw Error("Amount is out of range.");return n;};
   const date=(key:string)=>{const v=required(key);if(!/^\d{4}-\d{2}-\d{2}$/.test(v)||new Date(v).toISOString().slice(0,10)!==v)throw Error("Enter a valid date.");return v;};
   const id=get("id")||undefined;
   if(get("operation")==="delete") {if(!id)throw Error("Missing record.");await removeRecord(kind,id);revalidatePath("/","layout");return {ok:true,message:"Record deleted."};}
@@ -24,4 +24,3 @@ export async function mutate(_:Result, form:FormData):Promise<Result>{
   const saved=await saveRecord(kind,values,id);revalidatePath("/","layout");return {ok:true,message:id?(kind==="redemptions"?"Redemption cancelled and stock returned.":"Changes saved."):(kind==="redemptions"?"Gift redeemed. Inventory updated.":"Record created."),id:saved};
  }catch(e){return {ok:false,message:e instanceof Error?e.message:"Unable to save. Please try again."};}
 }
-

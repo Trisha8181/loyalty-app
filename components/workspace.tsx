@@ -1,10 +1,10 @@
 import {TierSuggestion,AlertDraft} from "@/components/insights";
 import {Dashboard} from "@/components/dashboard";
 import {StockAdjustment} from "@/components/stock-adjustment";
-import Link from "next/link";
+
 import {notFound} from "next/navigation";
 import {loadData} from "@/lib/data";
-import {money,sections,type Kind,type Row} from "@/lib/types";
+import {money,sections,type Kind} from "@/lib/types";
 import {RecordForm,DeleteButton} from "@/components/forms";
 export async function Workspace({section,filter=""}:{section:string;filter?:string}){
  if(!sections.includes(section as typeof sections[number]))notFound();
@@ -32,6 +32,3 @@ export async function Workspace({section,filter=""}:{section:string;filter?:stri
 function columns(section:string){return ({campaigns:["Campaign","Dates","Status"],members:["Member","Gender","Tier","Lifecycle"],receipts:["Member","Amount","Store","Date","Campaign"],gifts:["Gift","Available stock","Receipt minimum","Campaign"],redemptions:["Member","Gift","Receipt","Status","Date"]} as Record<string,string[]>)[section]??[];}
 export function Metric({label,value}:{label:string;value:string}){return <article className="metric"><p>{label}</p><strong>{value}</strong><span>↗</span></article>;}
 export function Badge({text}:{text:string}){return <span className={"badge "+(text.includes("Low")||text==="Out of stock"?"warning":"")}>{text}</span>;}
-
-
-

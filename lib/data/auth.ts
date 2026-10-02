@@ -1,0 +1,8 @@
+import {createClient} from "@/lib/supabase/server";
+export async function signIn(email:string,password:string){const db=await createClient();const {error}=await db.auth.signInWithPassword({email,password});if(error)throw Error(error.message);}
+export async function signUp(email:string,password:string,origin:string){const db=await createClient();const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:origin+"/auth/callback"}});if(error)throw Error(error.message);return Boolean(data.session);}
+export async function demoSignIn(){const db=await createClient();const {error}=await db.auth.signInAnonymously();if(error)throw Error("Demo sign-in is unavailable. Please create an account or try again shortly.");const seed=await db.rpc("seed_demo_workspace");if(seed.error){await db.auth.signOut();throw Error("Unable to prepare the demo. Please try again.");}}
+export async function endSession(){const db=await createClient();await db.auth.signOut();}
+export async function seedWorkspace(){const db=await createClient();const {error}=await db.rpc("seed_demo_workspace");if(error)throw Error(error.message);}
+export async function exchangeAuthCode(code:string){const db=await createClient();const {error}=await db.auth.exchangeCodeForSession(code);return !error;}
+export async function privateDemoAvailable(){try{const response=await fetch(process.env.NEXT_PUBLIC_SUPABASE_URL+"/auth/v1/settings",{headers:{apikey:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!},cache:"no-store"});if(!response.ok)return false;const settings=await response.json();return settings.external?.anonymous_users===true;}catch{return false;}}

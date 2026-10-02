@@ -33,3 +33,14 @@ The integration script creates labelled Verification fixtures in the connected d
 - Applied 0004_insights. Verified Priya's gold suggestion and unreviewed status in the real database.
 - Rule boundary tests, strict TypeScript and production build pass.
 - Vercel successfully deployed Sprint 3 commit 003c763 from the GitHub integration.
+
+## Sprint 5 — per-user access and authentication
+- Replaced all temporary public RLS policies with owner-scoped read/write access. Unowned historical demo rows remain private and unchanged.
+- Added login, signup with email confirmation, logout, session refresh, protected routes and the confirmation callback.
+- Added idempotent owner-scoped sample-data loading, including tier suggestions and atomic seeded redemptions.
+- Applied 0005_owner_access and 0006_validation. Anonymous reads return zero rows; anonymous writes are rejected.
+- The rollback-only SQL regression test passed: user A sees five seeded members, $1,980 sales and tote stock 10; user B sees none of A's records or audit data.
+- Corrected Supabase Site URL and exact allowed callback to the production domain.
+- Private-demo sign-in is implemented but its authentication setting awaits explicit owner approval. The button is shown only when the provider is actually enabled.
+- Added an authenticated two-session integration test for the full workflow; run it after private-demo sign-in is enabled.
+- Production build, strict TypeScript, ESLint, metric and eligibility tests pass. Email delivery/confirmation is not end-to-end verified; Supabase default email delivery is still in use.
