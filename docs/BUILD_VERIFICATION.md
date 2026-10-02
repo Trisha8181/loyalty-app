@@ -17,3 +17,11 @@ The integration script creates labelled Verification fixtures in the connected d
 - Applied 0003_stock_adjustment and verified invalid adjustments are rejected.
 - Reset redemption selections after success. Production build and strict TypeScript pass.
 - Diagnosed missing Vercel Git connection; repository access is being connected by the owner.
+
+## Sprint 3 — functional dashboard
+- Added sales, cent-safe AOV, completed redemption count, new-member count, gender split, lifecycle counts, inventory summary and recent activity.
+- Campaign filter scopes sales, receipts, redemptions, inventory and member participants consistently.
+- Dashboard refreshes every 30 seconds; form writes invalidate all workspace routes.
+- Added loading/error/empty and filtered-empty states.
+- Metric tests cover the $120 success scenario, no receipts, cancelled redemptions, campaign isolation, and decimal totals. TypeScript and production build pass.
+- Vercel Git connection repaired and verified against Trisha8181/loyalty-app, production branch main.
