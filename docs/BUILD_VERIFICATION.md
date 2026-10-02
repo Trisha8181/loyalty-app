@@ -41,6 +41,16 @@ The integration script creates labelled Verification fixtures in the connected d
 - Applied 0005_owner_access and 0006_validation. Anonymous reads return zero rows; anonymous writes are rejected.
 - The rollback-only SQL regression test passed: user A sees five seeded members, $1,980 sales and tote stock 10; user B sees none of A's records or audit data.
 - Corrected Supabase Site URL and exact allowed callback to the production domain.
-- Private-demo sign-in is implemented but its authentication setting awaits explicit owner approval. The button is shown only when the provider is actually enabled.
-- Added an authenticated two-session integration test for the full workflow; run it after private-demo sign-in is enabled.
+- Private-demo sign-in was explicitly approved and enabled. The button is shown only when the provider is actually enabled.
+- Authenticated two-session integration passed: sample loading, $120 receipt/redemption, dashboard totals, stock concurrency, tier review, alert drafts, and cross-user read/write isolation.
+- Production commit 274d828 reached Vercel READY. Browser verification on the production domain registered Asha Live Demo, saved a $120 receipt, redeemed the tote, and showed $2,100 sales, $233.33 AOV, three redemptions, and tote stock 9 (previously 10).
 - Production build, strict TypeScript, ESLint, metric and eligibility tests pass. Email delivery/confirmation is not end-to-end verified; Supabase default email delivery is still in use.
+
+## Team workspaces and mobile follow-up
+- Applied 0007 after a rollback-only combined migration/regression run passed in the provisioned database.
+- Team regression covers recipient-bound invitation acceptance and replay rejection, owner/admin/staff permissions, personal and cross-team isolation, shared staff edits, $120 redemption, stock adjustment, tier review, cancellation, immutable workspace/creator, append-only audit, and revoked membership access.
+- All test accounts and team fixtures were rolled back. Existing personal records were not shared.
+- Re-ran the authenticated personal demo integration after applying 0007; core workflow, concurrency, metrics, and two-user isolation still pass.
+- Added team creation, invitation links, joining, switching, role management, removal and leaving. Email delivery is unchanged and still not verified end to end; the team UI requires a confirmed email account.
+- Mobile implementation includes labelled record cards below 700px, inline closable forms, touch targets, readable selected receipt/gift details, visible workspace context, and stale-workspace form guards.
+- A separate ivory/ink/cobalt interactive design preview is provided for review. Its JavaScript and DOM references were statically checked; browser screenshot verification of that standalone file remains unperformed.

@@ -15,7 +15,13 @@ Create an email account and confirm its email, or use **Try a private demo** to 
 5. Redeem a gift against that member's qualifying, unused receipt. Campaigns must match when the gift is campaign-specific.
 6. Confirm updated inventory, sales, AOV, redemptions, gender split and lifecycle counts on the dashboard.
 
-Gift stock is deducted in the same Postgres transaction as the redemption. Concurrent claims cannot take the same last unit. A receipt may back only one completed redemption. Cancellation returns one unit once; linked receipts are protected against editing/deletion. Manual stock corrections use an atomic delta. Every write is audited. Tier suggestions require explicit approval; stock-alert drafts do not send communications.
+Gift stock is deducted in the same Postgres transaction as the redemption. Concurrent claims cannot take the same last unit. A receipt may back only one completed redemption. Cancellation returns one unit once; linked receipts are protected against editing/deletion. Manual stock corrections use an atomic delta. CRM writes and team membership changes are audited. Tier suggestions require explicit approval; stock-alert drafts do not send communications.
+
+## Work with your team
+
+Use a confirmed email account, open **Team**, and create a team workspace. Owners can invite admins or staff; admins can invite and remove staff. Each invitation is for one email, works once, and expires in seven days. Copy the generated link and share it with the named colleague. No invitation email is sent by the app.
+
+Switch between personal and team workspaces from Team. Existing personal records stay private. All team members share the team's campaigns, members, receipts, gifts and redemptions. Workspace names remain visible, and forms opened before switching teams are rejected until refreshed. Removing a teammate immediately revokes their database access. Anonymous demos cannot create or join teams.
 
 ## Develop
 
@@ -34,7 +40,7 @@ pnpm build
 
 ## Database
 
-Migrations in `supabase/migrations` were applied in order to project `obgbodsyrguantdxajmk` through its SQL editor. On a new database, apply 0001 through 0006 before exposing the app; 0005 replaces all temporary demo policies. Old unowned demo rows remain inaccessible to app users. New samples are created by the owner-scoped `seed_demo_workspace` function.
+Migrations in `supabase/migrations` were applied in order to project `obgbodsyrguantdxajmk` through its SQL editor. On a new database, apply 0001 through 0007 before exposing the app; 0005 replaces all temporary demo policies and 0007 adds isolated team workspaces. Old unowned demo rows remain inaccessible to app users. New samples are created in personal workspaces by `seed_demo_workspace`. The rollback-only `tests/teams-rls.sql` checks team roles, invitations, shared redemption and cross-workspace isolation without retaining test accounts or records.
 
 Enable email sign-in with email confirmation. Private demos require anonymous sign-ins. Supabase Site URL is `https://loyalty-app-jet-two.vercel.app`, with the exact `/auth/callback` URL allowed. Configure a production SMTP provider before opening email signup broadly if Supabase's default email delivery limits are unsuitable.
 
@@ -42,4 +48,4 @@ Enable email sign-in with email confirmation. Private demos require anonymous si
 
 Repository: `Trisha8181/loyalty-app`; Vercel project: `trisha8181/loyalty-app`; production branch: `main`. Commit as `Trisha8181 <335933433+Trisha8181@users.noreply.github.com>` and push. Vercel builds from Git. Do not deploy local files with the Vercel deploy command.
 
-No service-role key is used by the application. Supabase reads and writes live in `lib/data`, server actions in `lib/actions`, and rule-based insights in `lib/ai`. All tables enforce owner access, including the audit log.
+No service-role key is used by the application. Supabase reads and writes live in `lib/data`, server actions in `lib/actions`, and rule-based insights in `lib/ai`. All CRM tables, including audit logs, enforce personal ownership or team membership.

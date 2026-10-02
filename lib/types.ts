@@ -1,6 +1,6 @@
 export type Kind = "campaigns" | "memberships" | "receipts" | "gifts" | "redemptions";
 export interface Row {
- id: string; name?: string; created_at: string; user_id?: string | null;
+ id: string; name?: string; created_at: string; user_id?: string | null; workspace_id?: string | null;
  start_date?: string; end_date?: string; status?: string; gender?: string; tier?: string;
  lifecycle_status?: string; registered_at?: string; suggested_tier?: string; suggested_tier_source?: string;
  suggested_tier_confidence?: number; suggested_tier_review_status?: string;

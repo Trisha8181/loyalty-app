@@ -1,11 +1,13 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { saveRecord, removeRecord } from "@/lib/data";
+import {activeWorkspace} from "@/lib/data/teams";
 import type { Kind } from "@/lib/types";
 export type Result = {ok:boolean; message:string; id?:string};
 const tables:Kind[]=["campaigns","memberships","receipts","gifts","redemptions"];
 export async function mutate(_:Result, form:FormData):Promise<Result>{
  try{
+  if(String(form.get("expectedWorkspace"))!==(await activeWorkspace()??"personal"))throw Error("Your workspace changed in another tab. Refresh this page before saving.");
   const kind=String(form.get("kind")) as Kind;
   if(!tables.includes(kind)) throw Error("Unknown record type.");
   const get=(key:string)=>String(form.get(key)??"").trim();
