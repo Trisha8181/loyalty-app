@@ -54,3 +54,10 @@ The integration script creates labelled Verification fixtures in the connected d
 - Added team creation, invitation links, joining, switching, role management, removal and leaving. Email delivery is unchanged and still not verified end to end; the team UI requires a confirmed email account.
 - Mobile implementation includes labelled record cards below 700px, inline closable forms, touch targets, readable selected receipt/gift details, visible workspace context, and stale-workspace form guards.
 - A separate ivory/ink/cobalt interactive design preview is provided for review. Its JavaScript and DOM references were statically checked; browser screenshot verification of that standalone file remains unperformed.
+
+## Supplied Stitch reference
+- Replaced the sage palette with the supplied dark charcoal/champagne design across dashboard, navigation, forms, tables, login and team settings.
+- Matched the exported Newsreader/Plus Jakarta Sans typography with locally hosted fonts and included their OFL licenses. No third-party font request is required at runtime.
+- Added outlined SVG navigation icons, the diamond brand motif, and gold dashboard highlights. Existing CRM actions, workspace guards and role policies are preserved.
+- Production build, integrated lint and TypeScript pass. Desktop browser rendering was checked against the supplied screenshot.
+- Verified dashboard and member form/card layouts at 390px and 320px viewport widths with no horizontal overflow. A member submitted through the redesigned mobile form persisted after reload.

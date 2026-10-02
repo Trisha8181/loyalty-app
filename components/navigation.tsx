@@ -4,6 +4,7 @@ import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {sections} from "@/lib/types";
+import {BrandMark,Icon} from "./icons";
 
 export function Navigation({workspaceLabel}:{workspaceLabel:string}){
  const path=usePathname();
@@ -18,15 +19,15 @@ export function Navigation({workspaceLabel}:{workspaceLabel:string}){
  if(path==="/login")return null;
  const links=[...sections,"team"];
  return <>
-  <button ref={toggle} className="menu-toggle" aria-expanded={open} aria-controls="workspace-navigation" onClick={()=>setOpen(!open)}><span aria-hidden="true">{open?"×":"☰"}</span><span className="mobile-brand">Gather<small>{workspaceLabel}</small></span><span className="menu-label">{open?"Close menu":"Menu"}</span></button>
+  <button ref={toggle} className="menu-toggle" aria-expanded={open} aria-controls="workspace-navigation" onClick={()=>setOpen(!open)}><Icon name={open?"close":"menu"}/><span className="mobile-brand">Gather<small>{workspaceLabel}</small></span><span className="menu-label">{open?"Close menu":"Menu"}</span></button>
   {open&&<button className="menu-backdrop" aria-label="Close navigation" onClick={()=>{setOpen(false);toggle.current?.focus();}}/>}
   <aside id="workspace-navigation" className={open?"sidebar open":"sidebar"}>
-   <Link className="brand" href="/" onClick={()=>setOpen(false)}><span aria-hidden="true">◈</span><span>Gather<small>LOYALTY WORKSPACE</small></span></Link>
+   <Link className="brand" href="/" onClick={()=>setOpen(false)}><BrandMark/><span>Gather<small>LOYALTY WORKSPACE</small></span></Link>
    <p className="nav-label">WORKSPACE</p>
-   <nav aria-label="Workspace">{links.map((section,i)=>{
+   <nav aria-label="Workspace">{links.map(section=>{
     const href=section==="dashboard"?"/":"/"+section;
     const active=path===href;
-    return <Link key={section} onClick={()=>setOpen(false)} href={href} aria-current={active?"page":undefined} className={active?"active":""}><span className="nav-icon" aria-hidden="true">{["▦","⚑","♧","▤","◇","↗","♧"][i]}</span>{section[0].toUpperCase()+section.slice(1)}</Link>;
+    return <Link key={section} onClick={()=>setOpen(false)} href={href} aria-current={active?"page":undefined} className={active?"active":""}><Icon name={section} className="nav-icon"/>{section[0].toUpperCase()+section.slice(1)}</Link>;
    })}</nav>
    <div className="sidebar-note"><span className="status-dot"/> {workspaceLabel}<p>Campaigns, customers, and thoughtful rewards.</p><form action={logout}><button className="secondary">Sign out</button></form></div>
   </aside>
