@@ -10,3 +10,10 @@
 - Temporary public demo access was explicitly approved by the owner. Sprint 5 replaces it with owner-scoped access.
 
 The integration script creates labelled Verification fixtures in the connected database. Run it only against a development/demo project. Authenticated verification is added with the lockdown sprint.
+
+## Sprint 2 — inventory and redemption validation
+- Browser success scenario: Asha Demo registered, $120 Store A receipt saved, Festive Tote Bag redeemed, inventory decreased from 10 to 9 and redemption persisted.
+- Added atomic incremental stock adjustment, preventing stale gift-edit forms from resetting inventory after a simultaneous redemption.
+- Applied 0003_stock_adjustment and verified invalid adjustments are rejected.
+- Reset redemption selections after success. Production build and strict TypeScript pass.
+- Diagnosed missing Vercel Git connection; repository access is being connected by the owner.

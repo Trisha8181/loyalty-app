@@ -1,0 +1,4 @@
+"use client";
+import {useActionState} from "react";
+import {adjustStock} from "@/lib/actions/stock";
+export function StockAdjustment({id}:{id:string}){const [state,action,pending]=useActionState(adjustStock,{ok:false,message:""});return <details><summary>Adjust stock</summary><form action={action} className="record-form edit-panel" onSubmit={e=>{if(!confirm("Apply this manual stock adjustment?"))e.preventDefault();}}><input type="hidden" name="id" value={id}/><label>Units to add or remove<input name="delta" type="number" step="1" min="-1000000" max="1000000" placeholder="e.g. 10 or -2" required/></label><button disabled={pending}>{pending?"Adjusting…":"Apply adjustment"}</button>{state.message&&<p role="status" className={state.ok?"success":"notice"}>{state.message}</p>}</form></details>;}

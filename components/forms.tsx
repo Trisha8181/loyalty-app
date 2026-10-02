@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { mutate } from "@/lib/actions/records";
 import { money, type Dataset, type Kind, type Row } from "@/lib/types";
 export function RecordForm({kind,data,row}:{kind:Kind;data:Dataset;row?:Row}){
@@ -7,6 +7,7 @@ export function RecordForm({kind,data,row}:{kind:Kind;data:Dataset;row?:Row}){
  const [member,setMember]=useState(row?.member_id??"");
  const [gift,setGift]=useState(row?.gift_id??"");
  const [receipt,setReceipt]=useState(row?.receipt_id??"");
+ useEffect(()=>{if(state.ok){setMember("");setGift("");setReceipt("");}},[state]);
  const input=(name:string,label:string,type="text",fallback="")=><label key={name}>{label}<input name={name} type={type} required={name!=="description"} defaultValue={String(row?.[name as keyof Row]??fallback)} min={type==="number"?0:undefined} step={type==="number"?1:undefined} maxLength={type==="text"?200:undefined}/></label>;
  const select=(name:string,label:string,options:{id:string;name:string}[],fallback="",optional=false)=><label key={name}>{label}<select name={name} defaultValue={String(row?.[name as keyof Row]??fallback)} required={!optional}><option value="">{optional?"No campaign":"Choose an option"}</option>{options.map(o=><option key={o.id} value={o.id}>{o.name}</option>)}</select></label>;
  const enumSelect=(name:string,label:string,values:string[],fallback:string)=>select(name,label,values.map(v=>({id:v,name:v[0].toUpperCase()+v.slice(1)})),fallback);
@@ -18,7 +19,7 @@ export function RecordForm({kind,data,row}:{kind:Kind;data:Dataset;row?:Row}){
  {kind==="campaigns"&&<>{input("name","Campaign name")}{input("start_date","Start date","date")}{input("end_date","End date","date")}{enumSelect("status","Status",["active","paused","completed"],"active")}</>}
  {kind==="memberships"&&<>{input("name","Member name")}{enumSelect("gender","Gender",["female","male","other","unspecified"],"unspecified")}{enumSelect("tier","Tier",["bronze","silver","gold"],"bronze")}{enumSelect("lifecycle_status","Lifecycle",["new","active","churned"],"new")}</>}
  {kind==="receipts"&&<>{select("member_id","Member",data.memberships.map(m=>({id:m.id,name:m.name!})))}{input("amount","Receipt amount ($)")}{input("store","Store")}{input("transaction_date","Transaction date","date",new Date().toISOString().slice(0,10))}{select("campaign_id","Campaign",campaigns,"",true)}</>}
- {kind==="gifts"&&<>{input("name","Gift name")}{input("description","Description")}{input("stock","Stock","number","0")}{input("threshold_amount","Minimum receipt ($)","text","0")}{select("campaign_id","Campaign",campaigns,"",true)}</>}
+ {kind==="gifts"&&<>{input("name","Gift name")}{input("description","Description")}{!row&&input("stock","Stock","number","0")}{input("threshold_amount","Minimum receipt ($)","text","0")}{select("campaign_id","Campaign",campaigns,"",true)}</>}
  {kind==="redemptions"&&!row&&<>
  <label>Member<select name="member_id" required value={member} onChange={e=>{setMember(e.target.value);setReceipt("");}}><option value="">Choose a member</option>{data.memberships.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
  <label>Gift<select name="gift_id" required value={gift} onChange={e=>setGift(e.target.value)}><option value="">Choose a gift</option>{data.gifts.map(g=><option key={g.id} value={g.id} disabled={!g.stock}>{g.name} · {g.stock} left · {money(Number(g.threshold_amount))} minimum</option>)}</select></label>
@@ -35,3 +36,5 @@ export function DeleteButton({kind,id}:{kind:Kind;id:string}){
  const [state,action,pending]=useActionState(mutate,{ok:false,message:""});
  return <form action={action} onSubmit={e=>{if(!confirm("Delete this record? Linked records may prevent deletion."))e.preventDefault();}}><input type="hidden" name="kind" value={kind}/><input type="hidden" name="id" value={id}/><input type="hidden" name="operation" value="delete"/><button className="danger" disabled={pending}>{pending?"Deleting…":"Delete"}</button>{state.message&&<p role="status" className="notice">{state.message}</p>}</form>;
 }
+
+

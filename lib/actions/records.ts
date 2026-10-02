@@ -19,8 +19,9 @@ export async function mutate(_:Result, form:FormData):Promise<Result>{
   if(kind==="campaigns") {values={name:required("name"),start_date:date("start_date"),end_date:date("end_date"),status:choice("status",["active","paused","completed"])};if(String(values.end_date)<String(values.start_date))throw Error("End date must be on or after start date.");}
   if(kind==="memberships") values={name:required("name").replace(/\s+/g," "),gender:choice("gender",["female","male","other","unspecified"]),tier:choice("tier",["bronze","silver","gold"]),lifecycle_status:choice("lifecycle_status",["new","active","churned"])};
   if(kind==="receipts") values={member_id:required("member_id"),amount:amount("amount",true),store:required("store"),transaction_date:date("transaction_date"),campaign_id:get("campaign_id")||null};
-  if(kind==="gifts") {const stock=Number(required("stock"));if(!Number.isInteger(stock)||stock<0||stock>1000000)throw Error("Stock must be a whole number from 0 to 1,000,000.");values={name:required("name"),description:get("description"),stock,threshold_amount:amount("threshold_amount"),campaign_id:get("campaign_id")||null};}
+  if(kind==="gifts") {const stock=id?undefined:Number(required("stock"));if(stock!==undefined&&(!Number.isInteger(stock)||stock<0||stock>1000000))throw Error("Stock must be a whole number from 0 to 1,000,000.");values={name:required("name"),description:get("description"),...(stock===undefined?{}:{stock}),threshold_amount:amount("threshold_amount"),campaign_id:get("campaign_id")||null};}
   if(kind==="redemptions") values=id?{status:"cancelled"}:{member_id:required("member_id"),gift_id:required("gift_id"),receipt_id:required("receipt_id"),status:"completed"};
   const saved=await saveRecord(kind,values,id);revalidatePath("/","layout");return {ok:true,message:id?(kind==="redemptions"?"Redemption cancelled and stock returned.":"Changes saved."):(kind==="redemptions"?"Gift redeemed. Inventory updated.":"Record created."),id:saved};
  }catch(e){return {ok:false,message:e instanceof Error?e.message:"Unable to save. Please try again."};}
 }
+
