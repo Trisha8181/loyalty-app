@@ -27,3 +27,5 @@ export async function removeRecord(table:Kind,id:string){
  if(error||!data) throw new Error(error?.code==="23503"?"This record is in use. Remove its unredeemed linked records first.":error?.message??"Record not found.");
 }
 export async function adjustInventory(id:string,delta:number){const db=await createClient();const {error}=await db.rpc("adjust_gift_stock",{p_gift_id:id,p_delta:delta});if(error)throw Error(error.message);}
+export async function reviewTier(id:string,accept:boolean){const db=await createClient();const {error}=await db.rpc("review_member_tier",{p_member_id:id,p_accept:accept});if(error)throw Error(error.message);}
+export async function draftAlert(id:string){const db=await createClient();const {data,error}=await db.rpc("draft_stock_alert",{p_gift_id:id});if(error)throw Error(error.message);return data as string;}

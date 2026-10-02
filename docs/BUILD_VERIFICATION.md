@@ -25,3 +25,11 @@ The integration script creates labelled Verification fixtures in the connected d
 - Added loading/error/empty and filtered-empty states.
 - Metric tests cover the $120 success scenario, no receipts, cancelled redemptions, campaign isolation, and decimal totals. TypeScript and production build pass.
 - Vercel Git connection repaired and verified against Trisha8181/loyalty-app, production branch main.
+
+## Sprint 4 — insights and polish
+- Added stored rule-based tier suggestions with source, 80% confidence and review status, refreshed after receipt writes. Existing membership tiers never change without a human approval action.
+- Added approve/dismiss controls and auditable low-stock alert drafts; no communications are sent.
+- Added top-member AOV rankings and lifecycle/inventory visualizations.
+- Applied 0004_insights. Verified Priya's gold suggestion and unreviewed status in the real database.
+- Rule boundary tests, strict TypeScript and production build pass.
+- Vercel successfully deployed Sprint 3 commit 003c763 from the GitHub integration.
